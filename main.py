@@ -1,6 +1,7 @@
 #AW Space Invaders
 import pygame
 import random
+import math
 
 # Initialize Pygame
 pygame.init()
@@ -10,19 +11,28 @@ screen_width = 800
 screen_height = 600
 screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption("Space Invaders")
-pygame_icon = pygame.image.load('resources\\ufo.png')
+pygame_icon = pygame.image.load('resources/download-removebg-preview.png')
 #32x32 image
 pygame.display.set_icon(pygame_icon)
 
-class Enemy:
-    def __init__(self, x, y, change = 0):
-        self.img = pygame.transform.scale(pygame.image.load('resources/alien.png'), (64, 64))
+#bullet class
+class Bullet:
+    def __init__(self, x = 0, y = 0):
+        self.state = "ready"
         self.x = x
         self.y = y
-        self.change = change
+        self.change = -1
+        self.img = pygame.transform.scale(pygame.image.load('resources/bullet.png'), (64, 64))
+        self.rotated = pygame.transform.rotate(self.img, 0)
 
+    def shoot(self):
+        screen.blit(self.img, (self.x, self.y))
 
-
+    def move(self):
+        self.y += self.change
+        if self.y <= 0:
+            self.state = "ready"
+    
 
 #player class
 class Player:
@@ -42,7 +52,41 @@ class Player:
         elif self.x >= (800-64):
             self.x = 736
 
+#enemy class
+class Enemy:
+    def __init__(self, x, y):
+        self.img = pygame.transform.scale(pygame.image.load('resources/alien.png'), (64, 64))
+        self.x = x
+        self.y = y
+        self.x_change = 0.3
+        self.y_change = 20
+
+    def enemy_set(self):
+        screen.blit(self.img, (self.x, self.y))
+
+    def move(self):
+        self.x += self.x_change
+        if self.x <= 0:
+            self.x_change = 0.3
+            self.y += self.y_change
+        elif self.x >= 800-64:
+            self.x_change = -0.3
+            self.y += self.y_change
+
+    def is_hit(self, bullet):
+        distance = math.sqrt((self.x-bullet.x)**2 + (self.y-bullet.y)**2)
+        if distance < 27:
+            
+
+
+
+
 player = Player(370)
+x = random.randint(0, 800-64)
+y = random.randint(0,300-64)
+enemy = Enemy(x, y)
+bullet = Bullet()
+
 
 
 
@@ -62,6 +106,12 @@ while running:
                 player.change = 0.3
             if keys[pygame.K_LEFT]:
                 player.change = -0.3
+            if keys[pygame.K_SPACE]:
+                if bullet.state == "ready":
+                    bullet.x = player.x + 16
+                    bullet.y = player.y + 10
+                    bullet.state = "fire"
+                
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 player.change = 0
@@ -70,9 +120,14 @@ while running:
 
     #Show items
     player.move()
+    enemy.move()
+    bullet.move()
 
     #Show items
     player.player_set()
+    enemy.enemy_set()
+    if bullet.state == "fire":
+        bullet.shoot()
 
 
     pygame.display.flip()
