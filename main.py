@@ -11,7 +11,7 @@ pygame.init()
 background = pygame.transform.scale(pygame.image.load('resources/background2.webp'), (800, 600))
 
 #background music
-mixer.music.load('resources/background.wav')
+mixer.music.load('resources\\background.wav')
 mixer.music.play(-1)
 
 #score text
@@ -25,6 +25,28 @@ pygame.display.set_caption("Space Invaders")
 pygame_icon = pygame.image.load('resources/icon.png')
 #32x32 image
 pygame.display.set_icon(pygame_icon)
+
+
+class Button:
+    def __init__(self, x,y, img, scale):
+        self.x = x
+        self.y = y
+        self.img = pygame.image.load(img)
+        self.img = pygame.transform.scale(self.img, (int(self.img.get_width()*scale), int(self.img.get_height()*scale)))
+        self.rect = self.img.get_rect()
+        self.surface = surface
+        
+
+    def draw(self):
+        pos = pygame.mouse.get_position()
+        print(pos)
+
+        if self.rect.collidepoint(pos):
+            print("Hover")
+        screen.blit(self.img, (self.x, self.y))
+
+    
+
 
 #bullet class
 class Bullet:
@@ -49,7 +71,7 @@ class Bullet:
 #player class
 class Player:
     def __init__(self, x, change = 0):
-        self.img = pygame.transform.scale(pygame.image.load('resources/skull7.png'), (64, 64))
+        self.img = pygame.transform.scale(pygame.image.load('resources/spaceship3.png'), (64, 64))
         self.x = x
         self.y = 600-69
         self.change = change
@@ -111,7 +133,7 @@ for i in range(6):
 
 game_over_font = pygame.font.Font('freesansbold.ttf', 64)
 game_over_text = game_over_font.render("GAME OVER", True, (255, 0, 0))
-game_over = False
+game_over = True
 
 
 
@@ -138,7 +160,7 @@ while running:
                     bullet.x = player.x + 16
                     bullet.y = player.y + 10
                     bullet.state = "fire"
-                    mixer.Sound.play('resources/laser.wav').play() 
+                    mixer.Sound.play('resources\\laser.wav').play() 
                 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -154,33 +176,39 @@ while running:
             enemies = []
             game_over = True
     if game_over == False:
+
             
-    bullet.move()
+        bullet.move()
 
-    for i, enemy in enumerate(enemies):
-        if enemy.is_hit(bullet):
-            bullet.state = "ready"
-            enemies.pop(i)
-            bullet.x = player.x
-            bullet.y = player.y
-            bullet.change = 0
-            player.score += 1
-            mixer.Sound.play('resources/explosion.wav').play()
-        if enemies == []:
-            for i in range(6):
-                x = random.randint(0, 800-64)
-                y = random.randint(0,300-64)
-                enemies.append(Enemy(x, y))
+        for i, enemy in enumerate(enemies):
+            if enemy.is_hit(bullet):
+                bullet.state = "ready"
+                enemies.pop(i)
+                bullet.x = player.x
+                bullet.y = player.y
+                bullet.change = 0
+                player.score += 1
+                mixer.Sound.play('resources\\explosion.wav').play()
+            if enemies == []:
+                for i in range(6):
+                    x = random.randint(0, 800-64)
+                    y = random.randint(0,300-64)
+                    enemies.append(Enemy(x, y))
 
-    for enemy in enemies:
-        if enemy.lose() == True:
+       
+        
+
+        #Show items
+        player.player_set()
+        enemy.enemy_set()
+        if bullet.state == "fire":
+            bullet.shoot()
+    else:
+        screen.blit(game_over_text, (200, 250))
+
+        button = Button(400, 350, 'resources/button.png', 0.2)
+        button.draw()
     
-
-    #Show items
     player.player_set()
-    enemy.enemy_set()
-    if bullet.state == "fire":
-        bullet.shoot()
-
 
     pygame.display.flip()
