@@ -8,7 +8,7 @@ from pygame import mixer
 pygame.init()
 
 #set background
-background = pygame.transform.scale(pygame.image.load('resources/images (1).jpg'), (800, 600))
+background = pygame.transform.scale(pygame.image.load('resources/background2.webp'), (800, 600))
 
 #background music
 mixer.music.load('resources/background.wav')
@@ -22,7 +22,7 @@ screen_width = 800
 screen_height = 600
 screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption("Space Invaders")
-pygame_icon = pygame.image.load('resources/download-removebg-preview.png')
+pygame_icon = pygame.image.load('resources/icon.png')
 #32x32 image
 pygame.display.set_icon(pygame_icon)
 
