@@ -31,19 +31,29 @@ class Button:
     def __init__(self, x,y, img, scale):
         self.x = x
         self.y = y
+        width = pygame.image.load(img).get_width()
+        height = pygame.image.load(img).get_height()
         self.img = pygame.image.load(img)
-        self.img = pygame.transform.scale(self.img, (int(self.img.get_width()*scale), int(self.img.get_height()*scale)))
+        self.img = pygame.transform.scale(self.img, (int(width*scale), int(height*scale)))
         self.rect = self.img.get_rect()
-        self.surface = surface
+        self.rect.x = x
+        self.rect.y = y
+        self.clicked = False
         
 
     def draw(self):
-        pos = pygame.mouse.get_position()
-        print(pos)
+        pos = pygame.mouse.get_pos()
+        action = True
 
         if self.rect.collidepoint(pos):
-            print("Hover")
-        screen.blit(self.img, (self.x, self.y))
+            if pygame.mouse.get_pressed()[0]==1 and self.clicked == False:
+                self.clicked = True
+                action = False
+                print("CLICKED")
+            else:
+                action = True
+        screen.blit(self.img, self.rect)
+        return action
 
     
 
@@ -141,7 +151,7 @@ running = True
 while running:
     screen.fill((0,0,0))
     screen.blit(background, (0, 0))
-    score_display = score_font.render(f"Score: {player.score}", True, (255,255,255))
+    score_display = score_font.render(f"Score: {player.score}", True, (255,0,0))
     screen.blit(score_display, (10,10))
     #loop events
     for event in pygame.event.get():
@@ -160,7 +170,7 @@ while running:
                     bullet.x = player.x + 16
                     bullet.y = player.y + 10
                     bullet.state = "fire"
-                    mixer.Sound.play('resources\\laser.wav').play() 
+                
                 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -188,7 +198,7 @@ while running:
                 bullet.y = player.y
                 bullet.change = 0
                 player.score += 1
-                mixer.Sound.play('resources\\explosion.wav').play()
+                
             if enemies == []:
                 for i in range(6):
                     x = random.randint(0, 800-64)
@@ -207,7 +217,7 @@ while running:
         screen.blit(game_over_text, (200, 250))
 
         button = Button(400, 350, 'resources/button.png', 0.2)
-        button.draw()
+        game_over = button.draw()
     
     player.player_set()
 
